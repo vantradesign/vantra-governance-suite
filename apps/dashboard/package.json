@@ -1,5 +1,6 @@
 {
   "name": "@vantra-design/dashboard",
+  "version": "0.1.0",
   "type": "module",
   "private": true,
   "description": "Shared dashboard UI for the five Vantra governance tools.",
