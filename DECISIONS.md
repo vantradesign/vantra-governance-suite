@@ -114,18 +114,69 @@ to watch the tool packages when actively editing them.
 
 ---
 
-## 6. Supabase RLS is enabled with wide-open policies
+## 6. `anon` gets no table privileges; the dashboard reads server-side
 
-**Decision.** RLS is on for all four tables, with a single
-`for all to authenticated using (true) with check (true)` policy each.
+**Decision.** RLS is on for all four tables with permissive `authenticated`
+policies. Table privileges are granted to `service_role` and `authenticated`
+only — **never to `anon`** — and the dashboard reads through Nitro server routes
+using the secret key.
 
-Enabling RLS with a permissive policy is meaningfully different from leaving RLS
-off: the switch is already flipped, so tightening later is a policy edit rather
-than a schema migration, and no table is ever accidentally world-readable.
+### The bug that produced this entry
 
-**Follow-up — required before any deployment.** Any authenticated user can
-currently read and write every row. Scope policies per organisation/repository,
-and give the CI writer a service role separate from the dashboard reader.
+The initial migration enabled RLS and created policies but granted no table
+privileges at all. RLS and `GRANT` are two independent gates and a request must
+pass both, so *every* request failed before RLS was consulted — including
+`service_role`:
+
+```text
+42501: permission denied for table repos
+  hint: Grant the required privileges to the current role with:
+        GRANT SELECT ON public.repos TO service_role;
+```
+
+Tables created through the Supabase dashboard get these grants implicitly; tables
+created by a raw SQL migration do not. This was invisible because the tables
+existed, `supabase gen types` worked, and the dashboard pages were placeholders
+that never issued a query. Fixed in
+`supabase/migrations/20260810130000_grant_table_privileges.sql`, which also sets
+`alter default privileges` so a future table cannot silently reintroduce it.
+
+### Why `anon` stays closed
+
+The publishable key ships in the browser bundle — it is public by design, and RLS
+is what protects the data behind it. These tables hold a map of a private design
+system: component names, `file_path`, `line_number`, ownership. Granting `anon`
+read access would publish all of it to anyone who loads the dashboard.
+
+So reads go through `server/api/*` using `createVantraServiceClient()`. The
+browser never receives a key that can read these tables.
+
+**Follow-up.** `authenticated` currently has blanket access via
+`using (true)`. Scope per organisation/repository once real auth exists, at which
+point some reads can move back to the client.
+
+---
+
+## 6a. Never provide `SUPABASE_SERVICE_ROLE_KEY` at build time
+
+**Decision.** The secret key is a **runtime** variable only.
+
+`@nuxtjs/supabase` reads it into *private* `runtimeConfig.supabase.secretKey`.
+That never reaches the browser — verified by grepping `.output/public` for the key
+value, which is absent. But Nitro **inlines runtimeConfig into the server bundle
+at build time**, so building with the variable set bakes the secret into
+`.output/` (and therefore into the Turborepo cache artifact):
+
+```json
+"supabase": { "serviceKey": "", "secretKey": "sb_secret_..." }
+```
+
+The build artifact then becomes a credential. CI is unaffected because it builds
+without any Supabase environment at all. Supply the key to the *running server*
+instead, and treat any artifact built with it as sensitive.
+
+Note that `server/api/*` reads `process.env` per request through
+`createVantraServiceClient()`, so it does not depend on the baked value.
 
 ---
 

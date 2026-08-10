@@ -16,10 +16,13 @@ const { t } = useI18n()
 useHead({ title: `${t('repos.title')} · Vantra` })
 
 /**
- * Placeholder view: the query is typed against the generated schema but the
- * table is empty until the CI runner registers repositories.
+ * Read through the server route rather than querying Supabase from the client:
+ * `anon` has no table privileges by design, so a browser-side query would be
+ * rejected. See `supabase/migrations/*_grant_table_privileges.sql`.
  */
-const repos = ref<Tables<'repos'>[]>([])
+const { data, pending, error } = await useFetch<Tables<'repos'>[]>('/api/repos')
+
+const repos = computed(() => data.value ?? [])
 </script>
 
 <template>
@@ -35,6 +38,10 @@ const repos = ref<Tables<'repos'>[]>([])
         <CardDescription>{{ repos.length }}</CardDescription>
       </CardHeader>
       <CardContent>
+        <p v-if="error" class="mb-4 rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {{ error.statusMessage ?? 'Failed to load repositories' }}
+        </p>
+
         <Table>
           <TableHeader>
             <TableRow>
@@ -46,7 +53,7 @@ const repos = ref<Tables<'repos'>[]>([])
           </TableHeader>
           <TableBody>
             <TableEmpty v-if="repos.length === 0" :colspan="4">
-              {{ t('repos.empty') }}
+              {{ pending ? '…' : t('repos.empty') }}
             </TableEmpty>
             <TableRow v-for="repo in repos" :key="repo.id">
               <TableCell class="font-medium">{{ repo.name }}</TableCell>

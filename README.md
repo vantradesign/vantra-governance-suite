@@ -151,8 +151,35 @@ Copy the credentials into the app's env file:
 
 ```bash
 cp apps/dashboard/.env.example apps/dashboard/.env
-# set SUPABASE_URL and SUPABASE_KEY from `supabase status`
+# set SUPABASE_URL, SUPABASE_KEY and SUPABASE_SERVICE_ROLE_KEY from `supabase status`
 ```
+
+`SUPABASE_SERVICE_ROLE_KEY` is required, not optional: `anon` is granted no table
+privileges, so the dashboard reads through server routes. Supply it to the running
+server only — never at build time, or Nitro bakes it into the artifact
+(`DECISIONS.md` §6a).
+
+Check the wiring at any time:
+
+```bash
+curl -s http://localhost:3000/api/health/db
+```
+
+It reports whether the project is reachable and whether each table is readable —
+which distinguishes "wrong credentials" from "migrations never applied".
+
+### Using a hosted project instead of local
+
+```bash
+supabase login
+supabase link --project-ref <your-project-ref>
+supabase db push                      # apply migrations to the remote
+supabase gen types typescript --linked > packages/shared/src/types/database.ts
+```
+
+Then point `apps/dashboard/.env` at the hosted URL and keys. Skipping `db push`
+is the most likely failure: PostgREST answers `404 PGRST205 - Could not find the
+table` rather than anything that mentions migrations.
 
 After changing a migration, regenerate the types — never hand-edit them:
 
@@ -179,8 +206,11 @@ Four tables, defined in `supabase/migrations/`:
 | `findings` | one observation, tagged with the `tool` that produced it |
 | `consumer_impacts` | concrete call sites a change touches |
 
-RLS is enabled on all four with deliberately permissive placeholder policies —
-**not production-ready**, see `DECISIONS.md` §6.
+RLS is enabled on all four. Privileges are granted to `service_role` and
+`authenticated` only — **`anon` deliberately gets nothing**, because the
+publishable key is public and these rows describe a private design system. The
+`authenticated` policies are still permissive placeholders and are **not
+production-ready**; see `DECISIONS.md` §6.
 
 ---
 

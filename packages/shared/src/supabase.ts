@@ -71,3 +71,31 @@ export function createVantraSupabaseClientFromEnv(
 ): VantraSupabaseClient {
   return createVantraSupabaseClient(readSupabaseCredentialsFromEnv(env))
 }
+
+/**
+ * Create a client authenticated as `service_role`.
+ *
+ * **Server-side only.** This key bypasses RLS and has full table access; it must
+ * never reach the browser bundle. Call it from Nitro server routes, the CI runner
+ * or scripts — never from a Vue component or a composable that runs on the client.
+ *
+ * This exists because `anon` is deliberately granted no table privileges (see
+ * `supabase/migrations/*_grant_table_privileges.sql`): the dashboard reads through
+ * server routes so that a publishable key in the browser cannot expose the
+ * component graph of a private design system.
+ */
+export function createVantraServiceClient(
+  env: Record<string, string | undefined> = process.env,
+): VantraSupabaseClient {
+  const url = env.SUPABASE_URL
+  const key = env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SECRET_KEY
+
+  const missing: string[] = []
+  if (!url) missing.push('SUPABASE_URL')
+  if (!key) missing.push('SUPABASE_SERVICE_ROLE_KEY')
+  if (!url || !key) throw new MissingSupabaseCredentialsError(missing)
+
+  return createClient<Database>(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
