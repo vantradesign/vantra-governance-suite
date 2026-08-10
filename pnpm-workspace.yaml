@@ -1,0 +1,28 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Keep the peer-dependency resolution strict so that a version drift between the
+# dashboard and the tool packages surfaces at install time rather than at runtime.
+strictPeerDependencies: false
+autoInstallPeers: true
+# `@vantra-design/core` is our own package, so the release-age gate that protects
+# against freshly published supply-chain attacks does not need to apply to it.
+minimumReleaseAgeExclude:
+  - '@vantra-design/core@0.1.2'
+
+# esbuild ships a platform binary via a postinstall script; tsup cannot bundle
+# without it.
+allowBuilds:
+  esbuild: true
+
+# ---------------------------------------------------------------------------
+# Local development against a sibling `vantra-core` checkout.
+#
+# By default `@vantra-design/core` is resolved from npm (see DECISIONS.md).
+# To develop both repos side by side, uncomment the override below and rerun
+# `pnpm install`. Do not commit it in the uncommented state.
+#
+# overrides:
+#   '@vantra-design/core': link:../vantra-core
+# ---------------------------------------------------------------------------
