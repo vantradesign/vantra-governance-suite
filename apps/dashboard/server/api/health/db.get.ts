@@ -25,14 +25,30 @@ export default defineEventHandler(async () => {
 
   const results = await Promise.all(
     tables.map(async (table) => {
+      // Deliberately NOT `{ head: true }`. PostgREST answers a HEAD request for a
+      // table that does not exist with `204 No Content` and no error body, so
+      // supabase-js reports `error: null, count: null` — which made this probe
+      // pass against a completely unmigrated project. A real GET returns the
+      // expected `404 PGRST205`.
       const { count, error } = await supabase
         .from(table)
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact' })
+        .limit(1)
 
-      return [
-        table,
-        error ? { ok: false, code: error.code, message: error.message } : { ok: true, rows: count ?? 0 },
-      ] as const
+      if (error) {
+        return [table, { ok: false, code: error.code, message: error.message }] as const
+      }
+
+      // Belt and braces: a successful response must carry a numeric count. A null
+      // count means the request did not actually reach a real table.
+      if (typeof count !== 'number') {
+        return [
+          table,
+          { ok: false, code: 'NO_COUNT', message: 'Query returned no row count; table may not exist.' },
+        ] as const
+      }
+
+      return [table, { ok: true, rows: count }] as const
     }),
   )
 
