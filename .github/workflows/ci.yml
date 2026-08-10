@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A force-push to a PR branch makes the in-flight run obsolete.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck, build, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Turborepo derives task inputs from git, so it needs more than the
+          # single squashed commit a shallow clone provides.
+          fetch-depth: 2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Local Turborepo cache, persisted across runs on the same branch. See
+      # DECISIONS.md §4 for why there is no remote cache yet.
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      - name: Verify
+        run: pnpm turbo run lint typecheck build test
+
+  # ---------------------------------------------------------------------------
+  # PLACEHOLDER — not implemented yet.
+  #
+  # A second workflow will run all five governance tools in a single pass against
+  # a consumer repository's pull request:
+  #
+  #   1. check out the consumer repo
+  #   2. parse its component graph ONCE via @vantra-design/core, through
+  #      `createAnalysisContext()` in packages/shared/src/core.ts
+  #   3. hand that one AnalysisContext to all five tools
+  #   4. merge their five ToolResults into one AnalysisRunPayload
+  #   5. persist it to Supabase and post a single PR comment
+  #
+  # The point is step 2: parsing once instead of five times is the whole reason
+  # these tools share a repository. Any implementation that re-parses per tool has
+  # missed it.
+  #
+  # Blocked on the five tool packages having actual logic.
+  # ---------------------------------------------------------------------------

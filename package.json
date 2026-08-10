@@ -20,7 +20,8 @@
   "packageManager": "pnpm@11.20.0",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=@vantra-design/dashboard",
+    "dev:packages": "turbo run dev --filter=./packages/*",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint -- --fix",
     "typecheck": "turbo run typecheck",
