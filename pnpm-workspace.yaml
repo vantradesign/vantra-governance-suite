@@ -11,10 +11,13 @@ autoInstallPeers: true
 minimumReleaseAgeExclude:
   - '@vantra-design/core@0.1.2'
 
-# esbuild ships a platform binary via a postinstall script; tsup cannot bundle
-# without it.
+# These three need their postinstall scripts: esbuild and unrs-resolver install
+# platform-specific binaries, vue-demi switches its shim to the installed Vue
+# major. Without them tsup, ESLint import resolution and reka-ui break.
 allowBuilds:
   esbuild: true
+  unrs-resolver: true
+  vue-demi: true
 
 # ---------------------------------------------------------------------------
 # Local development against a sibling `vantra-core` checkout.

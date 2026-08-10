@@ -1,0 +1,69 @@
+{
+  "brand": {
+    "name": "Vantra",
+    "suite": "Governance Suite",
+    "tagline": "Design-system governance that runs in CI."
+  },
+  "nav": {
+    "overview": "Overview",
+    "repos": "Repositories",
+    "settings": "Settings"
+  },
+  "tools": {
+    "health-cli": "Health",
+    "breaking-change-analyzer": "Breaking Changes",
+    "deprecation-orchestrator": "Deprecations",
+    "zero-usage-gate": "Zero-Usage",
+    "ownership-mapper": "Ownership"
+  },
+  "overview": {
+    "title": "Overview",
+    "subtitle": "Results from all five governance tools, per analysis run.",
+    "emptyTitle": "No analysis runs yet",
+    "emptyBody": "Connect a repository and open a pull request to trigger the first analysis pass.",
+    "emptyAction": "Add a repository"
+  },
+  "repos": {
+    "title": "Repositories",
+    "subtitle": "Consumer repositories analysed against your design system.",
+    "empty": "No repositories configured yet.",
+    "columns": {
+      "name": "Name",
+      "role": "Role",
+      "githubUrl": "GitHub",
+      "createdAt": "Added"
+    },
+    "roles": {
+      "design_system": "Design system",
+      "consumer": "Consumer"
+    }
+  },
+  "report": {
+    "title": "Report",
+    "runId": "Run",
+    "empty": "No findings recorded for this tool.",
+    "columns": {
+      "type": "Type",
+      "severity": "Severity",
+      "description": "Description",
+      "confidence": "Confidence"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configuration for the analysis pass. Not wired up yet.",
+    "modelProvider": "Model provider",
+    "modelProviderHint": "Used by tools that fall back to model-assisted classification.",
+    "thresholds": "Thresholds",
+    "thresholdsHint": "Severity at which a tool fails the CI run.",
+    "save": "Save changes"
+  },
+  "common": {
+    "comingSoon": "Coming soon",
+    "placeholder": "Placeholder"
+  },
+  "footer": {
+    "license": "AGPL-3.0",
+    "org": "vantradesign on GitHub"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "__comment": "German scaffold. Only the navigation and shell are translated so the locale resolves; the remaining keys fall back to en.json until a full translation pass happens.",
+  "brand": {
+    "name": "Vantra",
+    "suite": "Governance-Suite",
+    "tagline": "Design-System-Governance direkt in der CI."
+  },
+  "nav": {
+    "overview": "Übersicht",
+    "repos": "Repositories",
+    "settings": "Einstellungen"
+  },
+  "tools": {
+    "health-cli": "Zustand",
+    "breaking-change-analyzer": "Breaking Changes",
+    "deprecation-orchestrator": "Deprecations",
+    "zero-usage-gate": "Ungenutzt",
+    "ownership-mapper": "Zuständigkeit"
+  },
+  "overview": {
+    "title": "Übersicht",
+    "emptyTitle": "Noch keine Analyse-Durchläufe"
+  },
+  "repos": {
+    "title": "Repositories",
+    "empty": "Noch keine Repositories konfiguriert."
+  },
+  "settings": {
+    "title": "Einstellungen"
+  },
+  "footer": {
+    "license": "AGPL-3.0",
+    "org": "vantradesign auf GitHub"
+  }
+}

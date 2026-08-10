@@ -28,7 +28,7 @@ still need migrating.
 ## Usage (planned)
 
 ```ts
-import { createAnalysisContext } from '@vantra-design/governance-shared'
+import { createAnalysisContext } from '@vantra-design/governance-shared/core'
 import { deprecationOrchestrator } from '@vantra-design/deprecation-orchestrator'
 
 const result = await deprecationOrchestrator.run(createAnalysisContext(process.cwd()))

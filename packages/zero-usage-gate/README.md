@@ -27,7 +27,7 @@ severity scaled by how long it has been unused.
 ## Usage (planned)
 
 ```ts
-import { createAnalysisContext } from '@vantra-design/governance-shared'
+import { createAnalysisContext } from '@vantra-design/governance-shared/core'
 import { zeroUsageGate } from '@vantra-design/zero-usage-gate'
 
 const result = await zeroUsageGate.run(createAnalysisContext(process.cwd()))

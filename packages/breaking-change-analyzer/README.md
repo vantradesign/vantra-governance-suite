@@ -29,7 +29,7 @@ classified API change, and one `consumerImpact` per affected call site
 ## Usage (planned)
 
 ```ts
-import { createAnalysisContext } from '@vantra-design/governance-shared'
+import { createAnalysisContext } from '@vantra-design/governance-shared/core'
 import { breakingChangeAnalyzer } from '@vantra-design/breaking-change-analyzer'
 
 const result = await breakingChangeAnalyzer.run(createAnalysisContext(process.cwd()))

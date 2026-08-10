@@ -26,7 +26,7 @@ ambiguously owned export.
 ## Usage (planned)
 
 ```ts
-import { createAnalysisContext } from '@vantra-design/governance-shared'
+import { createAnalysisContext } from '@vantra-design/governance-shared/core'
 import { ownershipMapper } from '@vantra-design/ownership-mapper'
 
 const result = await ownershipMapper.run(createAnalysisContext(process.cwd()))

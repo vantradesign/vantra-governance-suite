@@ -26,7 +26,7 @@ below its configured threshold, and the aggregate score in the description.
 ## Usage (planned)
 
 ```ts
-import { createAnalysisContext } from '@vantra-design/governance-shared'
+import { createAnalysisContext } from '@vantra-design/governance-shared/core'
 import { healthCli } from '@vantra-design/health-cli'
 
 const result = await healthCli.run(createAnalysisContext(process.cwd()))

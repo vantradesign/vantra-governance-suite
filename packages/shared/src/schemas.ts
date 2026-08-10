@@ -22,6 +22,14 @@ export type ToolId = z.infer<typeof toolIdSchema>
 /** All tool ids, in the order they are displayed in the dashboard. */
 export const TOOL_IDS = toolIdSchema.options
 
+/**
+ * Tool selected by default in the dashboard.
+ *
+ * Declared explicitly rather than as `TOOL_IDS[0]`, which `noUncheckedIndexedAccess`
+ * widens to `ToolId | undefined`.
+ */
+export const DEFAULT_TOOL_ID: ToolId = 'health-cli'
+
 /** Human-readable labels, used for dashboard tabs and CI summaries. */
 export const TOOL_LABELS: Record<ToolId, string> = {
   'health-cli': 'Health',

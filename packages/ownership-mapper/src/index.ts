@@ -8,7 +8,8 @@
  * @packageDocumentation
  */
 
-import type { AnalysisContext, GovernanceTool, ToolResult } from '@vantra-design/governance-shared'
+import type { GovernanceTool, ToolResult } from '@vantra-design/governance-shared'
+import type { AnalysisContext } from '@vantra-design/governance-shared/core'
 
 export const TOOL_ID = 'ownership-mapper' as const
 
