@@ -1,5 +1,7 @@
 import { createVantraServiceClient } from '@vantra-design/governance-shared'
 
+import { requireDashboardUser } from '../../utils/requireDashboardUser'
+
 /**
  * Database connectivity probe.
  *
@@ -7,18 +9,29 @@ import { createVantraServiceClient } from '@vantra-design/governance-shared'
  * migrations have actually been applied to it. Worth having because an
  * unmigrated project fails in a confusing way: PostgREST answers 404
  * `PGRST205 - Could not find the table` rather than a connection error.
+ *
+ * [Security] Authenticated-only, and deliberately terse. An open probe that
+ * reports the project URL, which tables exist and how many rows they hold is an
+ * infrastructure and schema map. Diagnostic detail goes to the server log; the
+ * response carries only what an operator needs to see in the UI.
  */
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
+  await requireDashboardUser(event)
+
   const tables = ['repos', 'analysis_runs', 'findings', 'consumer_impacts'] as const
 
   let supabase: ReturnType<typeof createVantraServiceClient>
   try {
     supabase = createVantraServiceClient()
   } catch (error) {
+    console.error(
+      '[api/health/db] Missing Supabase credentials:',
+      error instanceof Error ? error.message : String(error),
+    )
+
     return {
       ok: false,
-      reason: 'missing-credentials',
-      detail: error instanceof Error ? error.message : String(error),
+      reason: 'missing-credentials' as const,
       tables: {},
     }
   }
@@ -36,19 +49,20 @@ export default defineEventHandler(async () => {
         .limit(1)
 
       if (error) {
-        return [table, { ok: false, code: error.code, message: error.message }] as const
+        console.error(`[api/health/db] ${table}:`, error.code, error.message)
+        return [table, { ok: false }] as const
       }
 
       // Belt and braces: a successful response must carry a numeric count. A null
       // count means the request did not actually reach a real table.
       if (typeof count !== 'number') {
-        return [
-          table,
-          { ok: false, code: 'NO_COUNT', message: 'Query returned no row count; table may not exist.' },
-        ] as const
+        console.error(
+          `[api/health/db] ${table}: query returned no row count; table may not exist.`,
+        )
+        return [table, { ok: false }] as const
       }
 
-      return [table, { ok: true, rows: count }] as const
+      return [table, { ok: true }] as const
     }),
   )
 
@@ -57,8 +71,7 @@ export default defineEventHandler(async () => {
 
   return {
     ok,
-    url: process.env.SUPABASE_URL ?? null,
-    reason: ok ? null : 'schema-or-privileges',
+    reason: ok ? null : ('schema-or-privileges' as const),
     tables: tableStatus,
   }
 })

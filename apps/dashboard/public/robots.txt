@@ -1,2 +1,3 @@
+# Private operator surface. Nothing here is for public consumption.
 User-Agent: *
-Disallow:
+Disallow: /

@@ -46,6 +46,32 @@ export default defineNuxtConfig({
     },
   },
 
+  /**
+   * [Security] This app is server-rendered, so headers are set here rather than
+   * in a Pages `_headers` file — that is only read for static output.
+   *
+   * `X-Robots-Tag: noindex` because this is a private operator surface; the
+   * `public/robots.txt` disallow is a request, this is an instruction.
+   *
+   * `style-src 'unsafe-inline'` is required by shadcn/reka-ui, which sets
+   * positioning styles inline on floating elements.
+   */
+  routeRules: {
+    '/**': {
+      headers: {
+        'Content-Security-Policy':
+          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+        'Strict-Transport-Security': 'max-age=63072000; includeSubDomains',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'geolocation=(), camera=(), microphone=(), payment=()',
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'X-Frame-Options': 'DENY',
+        'X-Robots-Tag': 'noindex, nofollow',
+      },
+    },
+  },
+
   typescript: {
     typeCheck: false,
   },
