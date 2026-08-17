@@ -4,7 +4,7 @@
   "private": true,
   "description": "Monorepo hosting the five Vantra CI governance tools plus a shared dashboard UI, all sharing a single component graph parsed by @vantra-design/core.",
   "license": "AGPL-3.0-only",
-  "author": "Vantra Design <vantra@kauper.co>",
+  "author": "Vantra Design <hello@vantra.design>",
   "homepage": "https://github.com/vantradesign/vantra-governance-suite#readme",
   "repository": {
     "type": "git",
