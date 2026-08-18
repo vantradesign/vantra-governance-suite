@@ -1,75 +1,42 @@
-# Nuxt Minimal Starter
+# Governance Dashboard
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Shared UI for the five Vantra governance tools.
 
-## Setup
+Nuxt 4 · Tailwind CSS v4 · shadcn-vue (reka-ui) · Supabase · i18n (en/de)
 
-Make sure to install dependencies:
+## Running it
 
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+From the monorepo root:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+pnpm dev            # http://localhost:3000
 ```
 
-## Production
+Requires the Supabase credentials in `.env` — copy `.env.example` and fill in the
+values from `supabase status`. See the [root README](../../README.md) for full
+local-database setup.
 
-Build the application for production:
+## Scripts
 
-```bash
-# npm
-npm run build
+| Script | Purpose |
+| --- | --- |
+| `pnpm dev` | Dev server |
+| `pnpm build` | Production build |
+| `pnpm preview` | Serve the built output |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | `nuxt typecheck` |
+| `pnpm test` | Vitest |
 
-# pnpm
-pnpm build
+## Security
 
-# yarn
-yarn build
+The dashboard is a private operator surface, not a public site:
 
-# bun
-bun run build
-```
+- `X-Robots-Tag: noindex, nofollow` is set on every route.
+- `style-src 'unsafe-inline'` is required by shadcn/reka-ui for floating
+  element positioning.
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only via `useRuntimeConfig()` — never
+  exposed at build time.
 
-Locally preview production build:
+## License
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+[AGPL-3.0](../../LICENSE)
